@@ -1,0 +1,78 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@model IEnumerable<PetFinder.Models.Pet>
+
+@{
+    ViewData["Title"] = "Pets";
+}
+
+<h1>Available Pets</h1>
+
+@if (User.Identity.IsAuthenticated) {
+    <p>
+        <a class="btn btn-primary" asp-action="Create">Add New Pet</a>
+    </p>
+}
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsAdopted)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Disability)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PetType.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Breed.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User)
+            </th>
+            @if (User.Identity.IsAuthenticated) {
+                <th>Actions</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            @if (item.IsAdopted) {
+                <td>Adopted</td>
+            } else {
+                <td>Available</td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.Disability)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PetType.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Breed.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.Email)
+            </td>
+            @if (ViewData["currentUserId"].ToString() == item.User.Id) {
+                <td>
+                    <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            } else {
+                <td></td>
+            }
+        </tr>
+}
+    </tbody>
+</table>
