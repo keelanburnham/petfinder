@@ -23,8 +23,11 @@ namespace PetFinder.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IHostEnvironment _hostEnvironment;
 
-        public PetController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHostEnvironment hostEnvironment)
-        {
+        public PetController(
+            ApplicationDbContext context, 
+            UserManager<IdentityUser> userManager, 
+            IHostEnvironment hostEnvironment
+        ) {
             _context = context;
             _userManager = userManager;
             _hostEnvironment = hostEnvironment;
@@ -40,7 +43,8 @@ namespace PetFinder.Controllers
                 .Include(p => p.Breed)
                 .Include(p => p.PetType)
                 .Include(p => p.User)
-                .Where(p => p.IsDeleted == false);
+                .Where(p => p.IsDeleted == false
+            );
             return View(await pets.ToListAsync());
         }
 
@@ -49,15 +53,13 @@ namespace PetFinder.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-
             var pet = await _context.Pet
                 .Include(p => p.Breed)
                 .Include(p => p.PetType)
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            
+                .FirstOrDefaultAsync(m => m.Id == id
+            );
             if (pet == null) return NotFound();
-
             return View(pet);
         }
 
@@ -74,8 +76,9 @@ namespace PetFinder.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Create([Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,ImageFile")] Pet pet)
-        {
+        public async Task<IActionResult> Create(
+            [Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,ImageFile")] Pet pet
+        ) {
             if (ModelState.IsValid)
             {
                 var wwwRootPath = _hostEnvironment.ContentRootPath + "/wwwroot";
@@ -86,30 +89,45 @@ namespace PetFinder.Controllers
                 using (var fileStream = new FileStream(path, FileMode.Create)) {
                     await pet.ImageFile.CopyToAsync(fileStream);
                 }
-
                 var user = await _userManager.GetUserAsync(HttpContext.User);
                 pet.User = user;
                 _context.Add(pet);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BreedId"] = new SelectList(_context.Breed, "Id", "Name", pet.BreedId);
-            ViewData["PetTypeId"] = new SelectList(_context.PetTypes, "Id", "Name", pet.PetTypeId);
+            ViewData["BreedId"] = new SelectList(
+                _context.Breed, 
+                "Id", 
+                "Name", 
+                pet.BreedId
+            );
+            ViewData["PetTypeId"] = new SelectList(
+                _context.PetTypes, 
+                "Id", 
+                "Name", 
+                pet.PetTypeId
+            );
             return View(pet);
         }
 
         // GET: Pet/Edit/5
         [Authorize]
-        public async Task<IActionResult> Edit(int? id)
-        {
+        public async Task<IActionResult> Edit(int? id) {
             if (id == null) return NotFound();
-
             var pet = await _context.Pet.FindAsync(id);
-
             if (pet == null) return NotFound();
-
-            ViewData["BreedId"] = new SelectList(_context.Breed, "Id", "Name", pet.BreedId);
-            ViewData["PetTypeId"] = new SelectList(_context.PetTypes, "Id", "Name", pet.PetTypeId);
+            ViewData["BreedId"] = new SelectList(
+                _context.Breed, 
+                "Id", 
+                "Name", 
+                pet.BreedId
+            );
+            ViewData["PetTypeId"] = new SelectList(
+                _context.PetTypes, 
+                "Id", 
+                "Name", 
+                pet.PetTypeId
+            );
             return View(pet);
         }
 
@@ -117,10 +135,11 @@ namespace PetFinder.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,UserId")] Pet pet)
-        {
+        public async Task<IActionResult> Edit(
+            int id, 
+            [Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,UserId")] Pet pet
+        ) {
             if (id != pet.Id) return NotFound();
-
             if (ModelState.IsValid) {
                 try {
                     _context.Update(pet);
@@ -139,18 +158,15 @@ namespace PetFinder.Controllers
 
         // GET: Pet/Delete/5
         [Authorize]
-        public async Task<IActionResult> Delete(int? id)
-        {
+        public async Task<IActionResult> Delete(int? id) {
             if (id == null) return NotFound();
-
             var pet = await _context.Pet
                 .Include(p => p.Breed)
                 .Include(p => p.PetType)
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+                .FirstOrDefaultAsync(m => m.Id == id
+            );
             if (pet == null) return NotFound();
-
             return View(pet);
         }
 
@@ -158,8 +174,7 @@ namespace PetFinder.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
+        public async Task<IActionResult> DeleteConfirmed(int id) {
             var pet = await _context.Pet.FindAsync(id);
             pet.IsDeleted = true;
             _context.Pet.Update(pet);
@@ -167,8 +182,7 @@ namespace PetFinder.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool PetExists(int id)
-        {
+        private bool PetExists(int id) {
             return _context.Pet.Any(e => e.Id == id);
         }
     }
