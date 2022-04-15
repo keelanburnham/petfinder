@@ -35,21 +35,19 @@ namespace PetFinder.Controllers
 
         // GET: Pet
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
-        {
+        public async Task<IActionResult> Index() {
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            ViewData["currentUserId"] = user.Id.ToString();
+            if (user != null) ViewData["currentUserId"] = user.Id.ToString();
             var pets = _context.Pet
                 .Include(p => p.Breed)
                 .Include(p => p.PetType)
                 .Include(p => p.User)
-                .Where(p => p.IsDeleted == false
-            );
+                .Where(p => p.IsDeleted == false && p.IsAdopted == false);
             return View(await pets.ToListAsync());
         }
 
         // GET: Pet/Details/5
-        [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -81,14 +79,14 @@ namespace PetFinder.Controllers
         ) {
             if (ModelState.IsValid)
             {
-                var wwwRootPath = _hostEnvironment.ContentRootPath + "/wwwroot";
-                string fileName = Path.GetFileName(pet.ImageFile.FileName);
+                // var wwwRootPath = _hostEnvironment.ContentRootPath + "/wwwroot";
+                // string fileName = Path.GetFileName(pet.ImageFile.FileName);
                 //string extension = Path.GetExtension(pet.ImageFile.FileName);
                 // pet.ImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                string path = Path.Combine(wwwRootPath + "/images/", fileName);
-                using (var fileStream = new FileStream(path, FileMode.Create)) {
-                    await pet.ImageFile.CopyToAsync(fileStream);
-                }
+                // string path = Path.Combine(wwwRootPath + "/images/", fileName);
+                // using (var fileStream = new FileStream(path, FileMode.Create)) {
+                //     await pet.ImageFile.CopyToAsync(fileStream);
+                // }
                 var user = await _userManager.GetUserAsync(HttpContext.User);
                 pet.User = user;
                 _context.Add(pet);
@@ -114,8 +112,10 @@ namespace PetFinder.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int? id) {
             if (id == null) return NotFound();
+            var user = await _userManager.GetUserAsync(HttpContext.User);
             var pet = await _context.Pet.FindAsync(id);
             if (pet == null) return NotFound();
+            if (user.Id != pet.UserId) return Unauthorized();
             ViewData["BreedId"] = new SelectList(
                 _context.Breed, 
                 "Id", 
