@@ -7,7 +7,7 @@
     ViewData["Title"] = "Pets";
 }
 
-<h1>Available Pets</h1>
+<h1 class="w-100 text-center">Available Pets</h1>
 
 @if (User.Identity.IsAuthenticated) {
     <p>
@@ -35,9 +35,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.User)
             </th>
-            @if (User.Identity.IsAuthenticated) {
-                <th>Actions</th>
-            }
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -63,14 +61,46 @@
             <td>
                 @Html.DisplayFor(modelItem => item.User.Email)
             </td>
-            @if (ViewData["currentUserId"].ToString() == item.User.Id) {
+            @* @if (ViewData["currentUserId"].ToString() == item.User.Id) {
                 <td>
                     <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">View Profile</a>
                     <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                 </td>
             } else {
                 <td></td>
+            } *@
+            @if(!ViewData.Keys.Contains("currentUserId")) {
+                <td>
+                    <a 
+                        class="btn btn-primary" 
+                        asp-controller="Pet"
+                        asp-action="Details"
+                        asp-route-id="@item.Id"
+                    >View Profile</a>
+                </td>
+            } else if (ViewData["currentUserId"].ToString() == item.User.Id) {
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="optionsBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                            Options
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="optionsBtn">
+                            <li><a class="dropdown-item" asp-controller="Pet" asp-action="Details" asp-rout-id="@item.Id">Profile</a></li>
+                            <li><a class="dropdown-item" asp-controller="Pet" asp-action="Edit" asp-route-id="@item.Id">Edit</a></li>
+                            <li><a class="dropdown-item" asp-controller="Pet" asp-action="Delete" asp-route-id="@item.Id">Delete</a></li>
+                        </ul>
+                    </div>
+                </td>
+            } else {
+                <td>
+                    <a 
+                        class="btn btn-primary" 
+                        asp-controller="Pet"
+                        asp-action="Details"
+                        asp-route-id="@item.Id"
+                    >View Profile</a>
+                </td>
             }
         </tr>
 }

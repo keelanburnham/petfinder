@@ -47,8 +47,8 @@ namespace PetFinder.Models
         [Display(Name = "Owner")]
         public virtual IdentityUser User { get; set; }
 
-        [NotMapped]
-        [DisplayName("Image")]
-        public IFormFile ImageFile { get; set; }
+        // [NotMapped]
+        // [DisplayName("Image")]
+        // public IFormFile ImageFile { get; set; }
     }
 }

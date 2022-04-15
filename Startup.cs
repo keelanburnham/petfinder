@@ -6,6 +6,7 @@ using PetFinder.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Net;
 
 namespace PetFinder {
     public class Startup {
@@ -36,6 +37,12 @@ namespace PetFinder {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+            app.UseStatusCodePages(async context => {
+                var response = context.HttpContext.Response;
+                if (response.StatusCode == (int)HttpStatusCode.Unauthorized || 
+                    response.StatusCode == (int)HttpStatusCode.Forbidden)
+                    response.Redirect("/Home/Unauthorized");
+            });
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
