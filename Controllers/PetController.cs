@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,9 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using PetFinder.Data;
 using PetFinder.Models;
-
-// TODO: ADD BACK THE INPUT FIELDS I DELETED FROM EDIT, THEY ARE NEEDED TO BIND THEM TO THE DB
-// MAKE THEM HIDDEN
 
 // ADD FILE NAME PROP TO PET MODEL, IFORM IS JUST FOR PASSING TO CONTROLLER
 
@@ -79,14 +77,14 @@ namespace PetFinder.Controllers
         ) {
             if (ModelState.IsValid)
             {
-                // var wwwRootPath = _hostEnvironment.ContentRootPath + "/wwwroot";
-                // string fileName = Path.GetFileName(pet.ImageFile.FileName);
-                //string extension = Path.GetExtension(pet.ImageFile.FileName);
-                // pet.ImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                // string path = Path.Combine(wwwRootPath + "/images/", fileName);
-                // using (var fileStream = new FileStream(path, FileMode.Create)) {
-                //     await pet.ImageFile.CopyToAsync(fileStream);
-                // }
+                var wwwRootPath = _hostEnvironment.ContentRootPath + "/wwwroot";
+                string fileName = Path.GetFileNameWithoutExtension(pet.ImageFile.FileName);
+                string extension = Path.GetExtension(pet.ImageFile.FileName);
+                pet.ImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+                string path = Path.Combine(wwwRootPath + "/images/", fileName);
+                using (var fileStream = new FileStream(path, FileMode.Create)) {
+                    await pet.ImageFile.CopyToAsync(fileStream);
+                }
                 var user = await _userManager.GetUserAsync(HttpContext.User);
                 pet.User = user;
                 _context.Add(pet);
@@ -137,11 +135,19 @@ namespace PetFinder.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(
             int id, 
-            [Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,UserId")] Pet pet
+            [Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,UserId,ImageFile")] Pet pet
         ) {
             if (id != pet.Id) return NotFound();
             if (ModelState.IsValid) {
                 try {
+                    var wwwRootPath = _hostEnvironment.ContentRootPath + "/wwwroot";
+                    string fileName = Path.GetFileNameWithoutExtension(pet.ImageFile.FileName);
+                    string extension = Path.GetExtension(pet.ImageFile.FileName);
+                    pet.ImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+                    string path = Path.Combine(wwwRootPath + "/images/", fileName);
+                    using (var fileStream = new FileStream(path, FileMode.Create)) {
+                        await pet.ImageFile.CopyToAsync(fileStream);
+                    }
                     _context.Update(pet);
                     await _context.SaveChangesAsync();
                 }
@@ -151,8 +157,18 @@ namespace PetFinder.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BreedId"] = new SelectList(_context.Breed, "Id", "Name", pet.BreedId);
-            ViewData["PetTypeId"] = new SelectList(_context.PetTypes, "Id", "Name", pet.PetTypeId);
+            ViewData["BreedId"] = new SelectList(
+                _context.Breed, 
+                "Id", 
+                "Name", 
+                pet.BreedId
+            );
+            ViewData["PetTypeId"] = new SelectList(
+                _context.PetTypes, 
+                "Id", 
+                "Name", 
+                pet.PetTypeId
+            );
             return View(pet);
         }
 
@@ -176,6 +192,16 @@ namespace PetFinder.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id) {
             var pet = await _context.Pet.FindAsync(id);
+            var image = Path.Combine(
+                _hostEnvironment.ContentRootPath + "/wwwroot",
+                "images",
+                pet.ImageName
+            );
+            if (System.IO.File.Exists(image)) {
+                System.IO.File.Delete(image);
+                pet.ImageFile = null;
+                pet.ImageName = null;
+            }
             pet.IsDeleted = true;
             _context.Pet.Update(pet);
             await _context.SaveChangesAsync();
