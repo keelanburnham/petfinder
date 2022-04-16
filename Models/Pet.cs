@@ -47,8 +47,12 @@ namespace PetFinder.Models
         [Display(Name = "Owner")]
         public virtual IdentityUser User { get; set; }
 
-        // [NotMapped]
-        // [DisplayName("Image")]
-        // public IFormFile ImageFile { get; set; }
+        [Column(TypeName = "nvarchar(100)")]
+        [DisplayName("Image Name")]
+        public string ImageName { get; set; }
+
+        [NotMapped]
+        [DisplayName("Image")]
+        public IFormFile ImageFile { get; set; }
     }
 }

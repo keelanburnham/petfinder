@@ -82,11 +82,11 @@
             } else if (ViewData["currentUserId"].ToString() == item.User.Id) {
                 <td>
                     <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="optionsBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-expanded="false">
                             Options
                         </button>
-                        <ul class="dropdown-menu" aria-labelledby="optionsBtn">
-                            <li><a class="dropdown-item" asp-controller="Pet" asp-action="Details" asp-rout-id="@item.Id">Profile</a></li>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" asp-controller="Pet" asp-action="Details" asp-route-id="@item.Id">Profile</a></li>
                             <li><a class="dropdown-item" asp-controller="Pet" asp-action="Edit" asp-route-id="@item.Id">Edit</a></li>
                             <li><a class="dropdown-item" asp-controller="Pet" asp-action="Delete" asp-route-id="@item.Id">Delete</a></li>
                         </ul>
