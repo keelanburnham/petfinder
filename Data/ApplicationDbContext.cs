@@ -4,7 +4,7 @@ using PetFinder.Models;
 
 namespace PetFinder.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -14,6 +14,7 @@ namespace PetFinder.Data
         public DbSet<Pet> Pet { get; set; }
         public DbSet<Breed> Breed { get; set; }
         public DbSet<PetType> PetTypes { get; set; }
+        // public DbSet<ApplicationUser> User { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

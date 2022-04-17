@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net;
+using PetFinder.Models;
 
 namespace PetFinder {
     public class Startup {
@@ -20,10 +21,12 @@ namespace PetFinder {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(
+            services.AddIdentity<ApplicationUser, IdentityRole>(
                     options => options.SignIn.RequireConfirmedAccount = false
                 )
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddDefaultUI()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider);
             services.AddControllersWithViews();
             services.AddRazorPages();
         }

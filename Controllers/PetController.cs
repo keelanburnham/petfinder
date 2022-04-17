@@ -11,19 +11,17 @@ using Microsoft.Extensions.Hosting;
 using PetFinder.Data;
 using PetFinder.Models;
 
-// ADD FILE NAME PROP TO PET MODEL, IFORM IS JUST FOR PASSING TO CONTROLLER
-
 namespace PetFinder.Controllers
 {
     public class PetController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHostEnvironment _hostEnvironment;
 
         public PetController(
             ApplicationDbContext context, 
-            UserManager<IdentityUser> userManager, 
+            UserManager<ApplicationUser> userManager, 
             IHostEnvironment hostEnvironment
         ) {
             _context = context;
@@ -73,7 +71,8 @@ namespace PetFinder.Controllers
         [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Create(
-            [Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,ImageFile")] Pet pet
+            [Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,ImageFile")] Pet pet,
+            string exampleTextbox
         ) {
             if (ModelState.IsValid)
             {
@@ -86,7 +85,7 @@ namespace PetFinder.Controllers
                     await pet.ImageFile.CopyToAsync(fileStream);
                 }
                 var user = await _userManager.GetUserAsync(HttpContext.User);
-                pet.User = user;
+                pet.UserId = user.Id;
                 _context.Add(pet);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -107,6 +106,7 @@ namespace PetFinder.Controllers
         }
 
         // GET: Pet/Edit/5
+        [HttpGet]
         [Authorize]
         public async Task<IActionResult> Edit(int? id) {
             if (id == null) return NotFound();

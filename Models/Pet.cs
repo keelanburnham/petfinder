@@ -45,7 +45,7 @@ namespace PetFinder.Models
         public string UserId{ get; set;}
 
         [Display(Name = "Owner")]
-        public virtual IdentityUser User { get; set; }
+        public virtual ApplicationUser User { get; set; }
 
         [Column(TypeName = "nvarchar(100)")]
         [DisplayName("Image Name")]

@@ -1,20 +1,17 @@
 @using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 @model IEnumerable<PetFinder.Models.Pet>
-
 @{
     ViewData["Title"] = "Pets";
 }
-
 <h1 class="w-100 text-center">Available Pets</h1>
-
 @if (User.Identity.IsAuthenticated) {
     <p>
         <a class="btn btn-primary" asp-action="Create">Add New Pet</a>
     </p>
 }
-<table class="table table-hover">
+@* <table class="table table-hover">
     <thead>
         <tr>
             <th>
@@ -61,15 +58,6 @@
             <td>
                 @Html.DisplayFor(modelItem => item.User.Email)
             </td>
-            @* @if (ViewData["currentUserId"].ToString() == item.User.Id) {
-                <td>
-                    <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@item.Id">View Profile</a>
-                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            } else {
-                <td></td>
-            } *@
             @if(!ViewData.Keys.Contains("currentUserId")) {
                 <td>
                     <a 
@@ -105,4 +93,22 @@
         </tr>
 }
     </tbody>
-</table>
+</table> *@
+
+@foreach (var pet in Model) {
+    <div class="card mb-3 mx-auto w-75">
+        <div class="row no-gutters">            
+            <div class="col-md-4">
+                <img class="card-img w-100 h-100" src="~/images/@(pet.ImageName)" asp-append-version="true">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">@pet.Name</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">@pet.PetType.Name - @pet.Breed.Name | @pet.Disability</h6>
+                    <p>Located in @pet.User.City, @pet.User.State and posted by @pet.User.FirstName @pet.User.LastName</p>
+                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@pet.Id">View Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
