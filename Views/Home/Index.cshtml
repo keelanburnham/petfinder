@@ -1,13 +1,9 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-
-
-<div class="text-center">
-    <h1 class="display-4">Hooper</h1>
-    <h2>A Pet Finder for Disabled Pets</h2>
-    <img src="~/images/dog2.jpg" class="img-fluid rounded mb-3" alt="dog">
-    <br>
-    <a class="btn btn-primary" asp-controller="Pet" asp-action="Index">View available pets!</a>
+<div class="jumbotron">
+  <h1 class="display-4">Welcome</h1>
+  <p class="lead">Hooper is a pet finder specifically for handicap-challenged pets looking for a forever home!</p>
+  <hr class="my-4">
+  <a class="btn btn-primary" asp-controller="Pet" asp-action="Index">View available pets!</a>
 </div>
-
