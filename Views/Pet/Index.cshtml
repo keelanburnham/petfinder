@@ -6,11 +6,16 @@
     ViewData["Title"] = "Pets";
 }
 <h1 class="w-100 text-center">Available Pets</h1>
-@if (User.Identity.IsAuthenticated) {
-    <p>
-        <a class="btn btn-primary" asp-action="Create">Add New Pet</a>
-    </p>
-}
+<div class="d-flex flex-row-reverse mb-3 mr-3">
+    <form asp-controller="Pet" asp-action="Index" class="form-inline ">
+        <input class="form-control" type="text" name="search" placeholder="Search by city..." />
+        <input type="submit" class="btn btn-secondary" value="Search" />
+    </form>
+    @if (User.Identity.IsAuthenticated) {
+        <a class="btn btn-primary mr-1" asp-action="Create">Add New Pet</a>
+    }
+</div>
+
 @foreach (var pet in Model) {
     <div class="card mb-3 mx-auto w-75">
         <div class="row no-gutters">            

@@ -31,7 +31,7 @@ namespace PetFinder.Controllers
 
         // GET: Pet
         [AllowAnonymous]
-        public async Task<IActionResult> Index() {
+        public async Task<IActionResult> Index(string search) {
             var user = await _userManager.GetUserAsync(HttpContext.User);
             if (user != null) ViewData["currentUserId"] = user.Id.ToString();
             var pets = _context.Pet
@@ -39,6 +39,8 @@ namespace PetFinder.Controllers
                 .Include(p => p.PetType)
                 .Include(p => p.User)
                 .Where(p => p.IsDeleted == false && p.IsAdopted == false);
+            if (!String.IsNullOrEmpty(search))
+                pets = pets.Where(p => p.User.City.Contains(search));
             return View(await pets.ToListAsync());
         }
 
