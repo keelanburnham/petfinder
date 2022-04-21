@@ -10,6 +10,7 @@ namespace PetFinder {
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => {
+                    webBuilder.UseUrls(new string[] { "https://localhost:6001", "http://localhost:6000" });
                     webBuilder.UseStartup<Startup>();
                 });
     }

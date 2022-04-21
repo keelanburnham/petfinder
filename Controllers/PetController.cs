@@ -2,12 +2,14 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using MimeKit;
 using PetFinder.Data;
 using PetFinder.Models;
 
@@ -46,7 +48,7 @@ namespace PetFinder.Controllers
 
         // GET: Pet/Details/5
         [AllowAnonymous]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, bool? emailSent)
         {
             if (id == null) return NotFound();
             var pet = await _context.Pet
@@ -56,6 +58,8 @@ namespace PetFinder.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id
             );
             if (pet == null) return NotFound();
+            if (emailSent == true) ViewBag.emailSent = true;
+            else if (emailSent == false) ViewBag.emailSent = false;
             return View(pet);
         }
 
@@ -208,6 +212,53 @@ namespace PetFinder.Controllers
             _context.Pet.Update(pet);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> UserPets(){
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            if (user != null) ViewData["currentUserId"] = user.Id.ToString();
+            var pets = _context.Pet
+                .Include(p => p.Breed)
+                .Include(p => p.PetType)
+                .Include(p => p.User)
+                .Where(
+                    p => p.IsDeleted == false && 
+                    p.User.Id == user.Id);
+            return View(await pets.ToListAsync());
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> SendEmail(int id) {
+            // create email
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var email = new MimeMessage();
+            var pet = await _context.Pet
+                .Include(p => p.Breed)
+                .Include(p => p.PetType)
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            //try {
+                email.From.Add(MailboxAddress.Parse("kcb1922@jagmail.southalabama.edu"));
+                email.To.Add(MailboxAddress.Parse(pet.User.Email));
+                email.Subject = $"Hooper Pet Finder Notification";
+                email.Body = new TextPart(MimeKit.Text.TextFormat.Plain) {Text = $"{user.FirstName} {user.LastName} is interested in {pet.Name}!\n Their email is {user.Email}"};
+
+                // send email
+                using var smtp = new SmtpClient();
+                smtp.Connect("smpt.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                smtp.Authenticate("kcb1922@jagmail.southalabama.edu", "hygRep-6xugci-qyhkob");
+                smtp.Send(email);
+                smtp.Disconnect(true);
+                return RedirectToAction("Details", new {id = id, emailSent = true});
+            //}
+            //catch (System.Exception error) {
+            //     Console.Write(error.Message);
+            //     return RedirectToAction("Details", new {id = id, emailSent = false});
+            // }
+            
         }
 
         private bool PetExists(int id) {

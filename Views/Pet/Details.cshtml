@@ -1,8 +1,26 @@
 @model PetFinder.Models.Pet
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = @Model.Name;
 }
-<div class="card p-3 w-50 mx-auto">
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+var js, fjs = d.getElementsByTagName(s)[0];
+if (d.getElementById(id)) return;
+js = d.createElement(s); js.id = id;
+js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
+fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+@if (ViewBag.emailSent == true) {
+    <div class="alert alert-success" role="alert">
+        <strong>Email sent!</strong> Please allow some time for the owner to get back with you.
+    </div>
+}
+@if (ViewBag.emailSent == false) {
+    <div class="alert alert-warning" role="alert">
+        <strong>Whoops!</strong> Something went wrong while emailing the owner...
+    </div>
+}
+<div class="card bg-light p-3 w-50 mx-auto">
     <div class="row">
         <div class="col">
             <img src="~/images/@(Model.ImageName)" asp-append-version="true" width="250px" height="250px" class="rounded"/>
@@ -12,29 +30,41 @@
                 <h2>@Model.Name</h2>
             </div>
             <div class="row">
-                <dt>@Html.DisplayNameFor(m => m.PetType): </dt>
+                <dt class="mr-1">@Html.DisplayNameFor(m => m.PetType): </dt>
                 <dd>@Html.DisplayFor(m => m.PetType.Name)</dd>
             </div>
             <div class="row">
-                <dt>@Html.DisplayNameFor(m => m.Breed): </dt>
+                <dt class="mr-1">@Html.DisplayNameFor(m => m.Breed): </dt>
                 <dd>@Html.DisplayFor(m => m.Breed.Name)</dd>
             </div>
             <div class="row">
-                <dt>@Html.DisplayNameFor(m => m.Disability): </dt>
+                <dt class="mr-1">@Html.DisplayNameFor(m => m.Disability): </dt>
                 <dd>@Html.DisplayFor(m => m.Disability)</dd>
             </div>
             <div class="row">
-                <dt>Owner: </dt>
+                <dt class="mr-1">Owner: </dt>
                 <dd>@Html.DisplayFor(m => m.User.FirstName) @Html.DisplayFor(m => m.User.LastName)</dd>
             </div>
             <div class="row">
-                <dt>Location: </dt>
+                <dt class="mr-1">Location: </dt>
                 <dd>@Html.DisplayFor(m => m.User.City), @Html.DisplayFor(m => m.User.State)</dd>
             </div>
         </div>
     </div>
-    <div class="row">
-        <a asp-action="Index" class="btn btn-secondary m-3">Back to List</a>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary m-3">Edit</a>
+    <div class="card-body pb-0">
+        <a asp-action="Index" class="btn btn-secondary ">Back to List</a>
+        <a asp-action="SendEmail" asp-route-id="@Model.Id" class="btn btn-secondary">Notify Owner</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <div 
+            style="display: inline-block;"
+            data-href="https://www.hooper.keelanburnham.dev/Pet/Details/@Model.Id" 
+            data-layout="button" data-size="large"
+        >
+            <a 
+                target="_blank" 
+                href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.hooper.keelanburnham.dev%2FPet%2FDetails%2F@Model.Id&amp;src=sdkpreparse" 
+                class="btn btn-primary"><i class="bi bi-facebook"></i> Share
+            </a>
+        </div>
     </div>
 </div>

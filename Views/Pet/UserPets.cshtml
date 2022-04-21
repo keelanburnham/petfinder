@@ -1,0 +1,28 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@model IEnumerable<PetFinder.Models.Pet>
+@{
+    ViewData["Title"] = "My Pets";
+}
+<h1 class="w-100 text-center">My Pets</h1>
+<a class="btn btn-primary mr-1" asp-action="Create">Add New Pet</a>
+@foreach (var pet in Model) {
+    <div class="card bg-light p-3 mb-3 mx-auto w-75">
+        <div class="row no-gutters">            
+            <div class="col-md-4">
+                <img class="card-img w-100 h-100" src="~/images/@(pet.ImageName)" asp-append-version="true">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">@pet.Name</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">@pet.PetType.Name - @pet.Breed.Name | @pet.Disability</h6>
+                    <p>Located in @pet.User.City, @pet.User.State and posted by @pet.User.FirstName @pet.User.LastName</p>
+                    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@pet.Id">View Profile</a>
+                    <a asp-action="Edit" asp-route-id="@pet.Id" class="btn btn-primary">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@pet.Id" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
