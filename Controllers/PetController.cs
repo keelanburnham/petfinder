@@ -241,6 +241,7 @@ namespace PetFinder.Controllers
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.Id == id);
             //try {
+                // create email
                 email.From.Add(MailboxAddress.Parse("kcb1922@jagmail.southalabama.edu"));
                 email.To.Add(MailboxAddress.Parse(pet.User.Email));
                 email.Subject = $"Hooper Pet Finder Notification";
@@ -248,7 +249,7 @@ namespace PetFinder.Controllers
 
                 // send email
                 using var smtp = new SmtpClient();
-                smtp.Connect("smpt.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                smtp.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
                 smtp.Authenticate("kcb1922@jagmail.southalabama.edu", "hygRep-6xugci-qyhkob");
                 smtp.Send(email);
                 smtp.Disconnect(true);
