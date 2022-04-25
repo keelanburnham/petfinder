@@ -141,18 +141,20 @@ namespace PetFinder.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(
             int id, 
-            [Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,UserId,ImageFile")] Pet pet
+            [Bind("Id,Name,IsAdopted,IsDeleted,Disability,PetTypeId,BreedId,UserId,ImageName,ImageFile")] Pet pet
         ) {
             if (id != pet.Id) return NotFound();
             if (ModelState.IsValid) {
                 try {
-                    var wwwRootPath = _hostEnvironment.ContentRootPath + "/wwwroot";
-                    string fileName = Path.GetFileNameWithoutExtension(pet.ImageFile.FileName);
-                    string extension = Path.GetExtension(pet.ImageFile.FileName);
-                    pet.ImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                    string path = Path.Combine(wwwRootPath + "/images/", fileName);
-                    using (var fileStream = new FileStream(path, FileMode.Create)) {
-                        await pet.ImageFile.CopyToAsync(fileStream);
+                    if (pet.ImageFile != null) {
+                        var wwwRootPath = _hostEnvironment.ContentRootPath + "/wwwroot";
+                        string fileName = Path.GetFileNameWithoutExtension(pet.ImageFile.FileName);
+                        string extension = Path.GetExtension(pet.ImageFile.FileName);
+                        pet.ImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+                        string path = Path.Combine(wwwRootPath + "/images/", fileName);
+                        using (var fileStream = new FileStream(path, FileMode.Create)) {
+                            await pet.ImageFile.CopyToAsync(fileStream);
+                        }
                     }
                     _context.Update(pet);
                     await _context.SaveChangesAsync();
